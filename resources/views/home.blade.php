@@ -10,19 +10,37 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand font-weight-bold" href="{{ url('/') }}">My E-Commerce</a>
+            <a class="navbar-brand fw-bold" href="{{ route('catalog') }}">My E-Commerce</a>
             
-            <div class="navbar-nav ms-auto">
-                @auth
-                    <span class="nav-link text-white me-3">Halo, {{ auth()->user()->name }}</span>
-                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-danger">Logout</button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="btn btn-sm btn-outline-light me-2">Log in</a>
-                    <a href="{{ route('register') }}" class="btn btn-sm btn-primary">Register</a>
-                @endauth
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('catalog') ? 'active fw-bold' : '' }}" href="{{ route('catalog') }}">Katalog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('products.index') ? 'active fw-bold' : '' }}" href="{{ route('products.index') }}">Product</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('categories.index') ? 'active fw-bold' : '' }}" href="{{ route('categories.index') }}">Product Category</a>
+                    </li>
+                </ul>
+
+                <div class="navbar-nav ms-auto align-items-center">
+                    @auth
+                        <span class="nav-link text-white me-3 mb-0">Halo, {{ auth()->user()->name }}</span>
+                        <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-danger">Logout</button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-sm btn-outline-light me-2">Log in</a>
+                        <a href="{{ route('register') }}" class="btn btn-sm btn-primary">Register</a>
+                    @endauth
+                </div>
             </div>
         </div>
     </nav>
