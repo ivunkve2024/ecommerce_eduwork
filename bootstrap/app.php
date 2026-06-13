@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->redirectTo(function (Request $request) {
+            // Jika user belum login dan mencoba mengakses rute 'auth' (steril), bawa ke halaman /login
+            return route('login');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -10,16 +10,29 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand font-weight-bold" href="#">My E-Commerce</a>
+            <a class="navbar-brand font-weight-bold" href="{{ url('/') }}">My E-Commerce</a>
+            
+            <div class="navbar-nav ms-auto">
+                @auth
+                    <span class="nav-link text-white me-3">Halo, {{ auth()->user()->name }}</span>
+                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-danger">Logout</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-sm btn-outline-light me-2">Log in</a>
+                    <a href="{{ route('register') }}" class="btn btn-sm btn-primary">Register</a>
+                @endauth
+            </div>
         </div>
     </nav>
 
-<div class="container">
+    <div class="container">
         <h2 class="mb-4 text-center">Katalog Produk Terbaru</h2>
 
         <div class="row mb-4 justify-content-center">
             <div class="col-md-8">
-                <form action="{{ route('home') }}" method="GET">
+                <form action="{{ route('catalog') }}" method="GET">
                     <div class="row g-2">
                         
                         <div class="col-md-6">
@@ -49,13 +62,14 @@
                 
                 @if(request('search') || request('category'))
                     <div class="text-center mt-2">
-                        <a href="{{ route('home') }}" class="btn btn-sm btn-link text-secondary text-decoration-none">
+                        <a href="{{ route('catalog') }}" class="btn btn-sm btn-link text-secondary text-decoration-none">
                             ✕ Bersihkan Filter
                         </a>
                     </div>
                 @endif
             </div>
         </div>
+
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mb-3">
             @foreach($products as $product)
                 <div class="col">
@@ -79,7 +93,7 @@
                             </p>
 
                             <div class="d-grid gap-2">
-                                <a href="{{ route('detail-product', ['id' => $product->id]) }}" class="btn btn-outline-dark btn-sm">Lihat Detail</a>
+                                <a href="{{ url('/product/' . $product->id) }}" class="btn btn-outline-dark btn-sm">Lihat Detail</a>
                                 <button class="btn btn-primary btn-sm">Tambah ke Keranjang</button>
                             </div>
                         </div>
