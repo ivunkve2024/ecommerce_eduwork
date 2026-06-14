@@ -43,6 +43,21 @@
     </nav>
 
     <div class="container my-5">
+        
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <i class="fw-bold">⚠️ {{ session('error') }}</i>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
             <h2 class="fw-bold text-dark mb-0">Daftar Kategori</h2>
         
@@ -60,7 +75,7 @@
                     </select>
                 </form>
 
-                <button class="btn btn-sm btn-primary text-nowrap" disabled>+ Tambah Kategori</button>
+                <button type="button" class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#addCategoryModal">+ Tambah Kategori</button>
             </div>
         </div>
 
@@ -100,8 +115,21 @@
                                     </td>
                                     <td class="px-4 py-3 text-center">
                                         <div class="d-flex flex-column gap-1 align-items-center">
-                                            <button class="btn btn-sm btn-outline-warning w-100 py-1" style="font-size: 0.72rem; max-width: 65px;" disabled>Edit</button>
-                                            <button class="btn btn-sm btn-outline-danger w-100 py-1" style="font-size: 0.72rem; max-width: 65px;" disabled>Hapus</button>
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-warning w-100 py-1 edit-category-btn" 
+                                                    style="font-size: 0.72rem; max-width: 65px;"
+                                                    data-id="{{ $category->id }}"
+                                                    data-name="{{ $category->name }}">
+                                                Edit
+                                            </button>
+                                            
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-outline-danger w-100 py-1 delete-category-btn" 
+                                                    style="font-size: 0.72rem; max-width: 65px;"
+                                                    data-id="{{ $category->id }}"
+                                                    data-name="{{ $category->name }}">
+                                                Hapus
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -123,6 +151,111 @@
         </div>
     </div>
 
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-dark">Tambah Kategori Baru</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('categories.store') }}" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nama Kategori</label>
+                            <input type="text" name="name" class="form-control" placeholder="Contoh: Elektronik, Pakaian" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Simpan Kategori</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-dark">Ubah Nama Kategori</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editCategoryForm" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nama Kategori Baru</label>
+                            <input type="text" name="name" id="edit_category_name" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-danger">Hapus Kategori?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="deleteCategoryForm" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <div class="modal-body">
+                        <p class="small text-dark mb-0">Apakah Anda yakin ingin menghapus kategori <strong id="delete_category_label"></strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-xs btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-xs btn-danger">Ya, Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Handler untuk Tombol Edit
+        document.querySelectorAll('.edit-category-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                
+                document.getElementById('edit_category_name').value = name;
+                
+                // PERBAIKAN: Sesuaikan action URL agar ditambah akhiran /update agar cocok dengan rute manual web.php
+                document.getElementById('editCategoryForm').action = `/ecommerce_eduwork/public/categories/${id}/update`;
+                
+                const editModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+                editModal.show();
+            });
+        });
+
+        // Handler untuk Tombol Hapus
+        document.querySelectorAll('.delete-category-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                
+                document.getElementById('delete_category_label').innerText = name;
+                
+                // PERBAIKAN: Sesuaikan action URL agar ditambah akhiran /delete agar cocok dengan rute manual web.php
+                document.getElementById('deleteCategoryForm').action = `/ecommerce_eduwork/public/categories/${id}/delete`;
+                
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteCategoryModal'));
+                deleteModal.show();
+            });
+        });
+    </script>
 </body>
 </html>

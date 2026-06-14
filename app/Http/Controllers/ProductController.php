@@ -81,7 +81,17 @@ class ProductController extends Controller
             'stock' => 'required|integer',
             'category_id' => 'nullable|exists:product_categories,id',
             'description' => 'nullable|string',
+            'image' => 'nullable|string',
         ]);
+
+        $imageName = 'default.jpg';
+        if ($request->filled('image')) {
+            $base64Image = $request->image;
+            $file_parts = explode(";base64,", $base64Image);
+            $image_base64 = base64_decode($file_parts[1]);
+            $imageName = time() . '.jpg';
+            file_put_contents(public_path('images/' . $imageName), $image_base64);
+        }
 
         Product::create([
             'name' => $request->name,
@@ -90,7 +100,7 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'product_category_id' => $request->category_id,
             'description' => $request->description,
-            'image' => 'default.jpg',
+            'image' => $imageName,
         ]);
 
         return redirect()->route('products.index')->with('success', 'Produk baru berhasil ditambahkan!');
@@ -131,7 +141,27 @@ class ProductController extends Controller
             'stock' => 'required|integer',
             'category_id' => 'nullable|exists:product_categories,id',
             'description' => 'nullable|string',
+            'image' => 'nullable|string',
         ]);
+
+        $imageName = $product->image; 
+
+        // Jika user mengunggah file gambar baru
+       $imageName = $product->image; 
+        if ($request->filled('image')) {
+            $base64Image = $request->image;
+            $file_parts = explode(";base64,", $base64Image);
+            $image_base64 = base64_decode($file_parts[1]);
+            $imageName = time() . '.jpg';
+            file_put_contents(public_path('images/' . $imageName), $image_base64);
+
+            if ($product->image && $product->image != 'default.jpg') {
+                $oldImagePath = public_path('images/' . $product->image);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+        }
 
         $product->update([
             'name' => $request->name,
@@ -139,6 +169,7 @@ class ProductController extends Controller
             'stock' => $request->stock,
             'product_category_id' => $request->category_id, // Sesuaikan nama kolom foreign key Anda
             'description' => $request->description,
+            'image'=> $imageName,
         ]);
 
         return redirect()->route('products.index')->with('success', 'Produk berhasil diperbarui!');

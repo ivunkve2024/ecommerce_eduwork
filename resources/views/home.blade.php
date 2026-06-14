@@ -48,20 +48,15 @@
     <div class="container">
         <h2 class="mb-4 text-center">Katalog Produk Terbaru</h2>
 
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-8">
-                <form action="{{ route('catalog') }}" method="GET">
-                    <div class="row g-2">
-                        
-                        <div class="col-md-6">
-                            <input type="text" name="search" class="form-control" placeholder="Cari nama produk..." value="{{ request('search') }}">
-                        </div>
-
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <form action="{{ route('catalog') }}" method="GET" id="catalogFilterForm">
+                    <div class="row g-3 align-items-center">                    
                         <div class="col-md-4">
-                            <div class="input-group">
-                                <label class="input-group-text" for="filterKategori">Kategori</label>
-                                <select class="form-select" id="filterKategori" name="category">
-                                    <option value="">Semua</option>
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text fw-bold text-muted" for="filterKategori">Kategori</label>
+                                <select class="form-select" id="filterKategori" name="category" onchange="this.form.submit()">
+                                    <option value="">Semua Kategori</option>
                                     @foreach($categories as $cat)
                                         <option value="{{ $cat->slug }}" {{ request('category') == $cat->slug ? 'selected' : '' }}>
                                             {{ $cat->name }}
@@ -71,17 +66,32 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2 d-grid">
-                            <button type="submit" class="btn btn-primary">Cari</button>
+                        <div class="col-md-4">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text fw-bold text-muted" for="sort">Sort by</label>
+                                <select name="sort" id="sort" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Terbaru --</option>
+                                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
+                                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                                    <option value="stock_low" {{ request('sort') == 'stock_low' ? 'selected' : '' }}>Stock: Low to High</option>
+                                    <option value="stock_high" {{ request('sort') == 'stock_high' ? 'selected' : '' }}>Stock: High to Low</option>
+                                </select>
+                            </div>
                         </div>
 
+                        <div class="col-md-4">
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="search" class="form-control" placeholder="Cari nama produk..." value="{{ request('search') }}">
+                                <button type="submit" class="btn btn-primary">Cari</button>
+                            </div>
+                        </div>
                     </div>
                 </form>
                 
-                @if(request('search') || request('category'))
-                    <div class="text-center mt-2">
-                        <a href="{{ route('catalog') }}" class="btn btn-sm btn-link text-secondary text-decoration-none">
-                            ✕ Bersihkan Filter
+                @if(request('search') || request('category') || request('sort'))
+                    <div class="text-center mt-3">
+                        <a href="{{ route('catalog') }}" class="btn btn-sm btn-light border text-secondary text-decoration-none rounded-pill px-3">
+                            ✕ Bersihkan Semua Filter
                         </a>
                     </div>
                 @endif
@@ -89,22 +99,27 @@
         </div>
 
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 mb-3">
-            @foreach($products as $product)
+            @forelse($products as $product)
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm border-0 rounded-3 overflow-hidden">
+                        @if($product->image)
+                            <img src="{{ asset('images/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 140px; object-fit: cover; background-color: #ddd;">
+                        @else
+                            <div class="d-flex align-items-center justify-content-center bg-secondary text-white card-img-top" style="height: 140px;">
+                                <span class="small">No Image</span>
+                            </div>
+                        @endif
                         
-                        <img src="{{ asset('images/' . $product->image) }}" class="card-img-top" alt="{{ $product->name }}" style="height: 100px; object-fit: cover; background-color: #ddd;">
-                        
-                        <div class="card-body d-flex flex-column">
-                            <span class="badge bg-secondary mb-2 align-self-start">
+                        <div class="card-body d-flex flex-column p-3">
+                            <span class="badge bg-secondary mb-2 align-self-start text-truncate" style="max-width: 100%;">
                                 {{ $product->category ? $product->category->name : 'Tanpa Kategori' }}
                             </span>
 
-                            <h5 class="card-title text-dark fs-6 text-truncate" title="{{ $product->name }}">
+                            <h5 class="card-title text-dark fs-6 text-truncate mb-1" title="{{ $product->name }}">
                                 {{ $product->name }}
                             </h5>
                             
-                            <small class="text-muted mb-2">Stok: {{ $product->stock }} pcs</small>
+                            <small class="text-muted mb-2 d-block">Stok: {{ $product->stock }} pcs</small>
                             
                             <p class="card-text text-danger fw-bold mt-auto mb-3">
                                 Rp {{ number_format($product->price, 0, ',', '.') }}
@@ -117,10 +132,14 @@
                         </div>
                     </div>
                 </div>         
-            @endforeach
+            @empty
+                <div class="col-12 w-100 text-center py-5 text-muted">
+                    Produk tidak ditemukan atau belum ada data di database.
+                </div>
+            @endforelse
         </div>
 
-        <div class="d-flex justify-content-center my-5">
+        <div class="mt-4">
             {{ $products->appends(request()->query())->links('pagination::bootstrap-5') }}
         </div>
     </div>

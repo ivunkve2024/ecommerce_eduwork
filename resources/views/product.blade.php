@@ -59,7 +59,7 @@
                     @endif
                     
                     <label for="sort" class="text-nowrap small fw-bold text-muted mb-0">Sort by:</label>
-                    <select name="sort" id="sort" class="form-select form-select-sm" onchange="this.submit()" style="min-width: 180px;">
+                    <select name="sort" id="sort" class="form-select form-select-sm" onchange="this.form.submit()" style="min-width: 180px;">
                         <option value="">-- Terbaru --</option>
                         <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
                         <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
@@ -153,6 +153,7 @@
             {{ $products->links('pagination::bootstrap-5') }}
         </div>
         
-    </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </div> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
