@@ -18,7 +18,7 @@ class AuthenticatedSessionController extends Controller
     {
         // Jika user ternyata diam-diam sudah login, langsung lempar ke katalog!
     if (Auth::check()) {
-        return redirect('/catalog');
+        return redirect('/dashboard');
         }
         return view('auth.login');
     }
@@ -33,7 +33,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         //return redirect()->intended(route('dashboard', absolute: false));
-        return redirect('/catalog');
+        return redirect('/dashboard');
     }
 
     /**

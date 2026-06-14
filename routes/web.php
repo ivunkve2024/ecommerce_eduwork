@@ -10,16 +10,22 @@ use Illuminate\Support\Facades\Auth; // Pastikan import facade Auth
 
 // PERBAIKAN KONTROL AKSES HALAMAN UTAMA
 Route::get('/', function () {
-    // Jika user diam-diam SUDAH login, tendang ke /catalog
+    // Jika user diam-diam SUDAH login, tendang ke /dashboard
     if (Auth::check()) {
-        return redirect('/catalog');
+        return redirect('/dashboard');
     }
     // Jika BELUM login, panggil form login bawaan Breeze
     return app(AuthenticatedSessionController::class)->create();
-})->name('home');
+});
 
 // Halaman Katalog Utama setelah login
 Route::middleware('auth')->group(function () {
+    
+    // Rute halaman dashboard admin baru
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard'); 
+
     Route::get('/catalog', [HomeController::class, 'index'])->name('catalog');     
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
