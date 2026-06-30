@@ -17,14 +17,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
-        // 2. Tambahkan kode otomatisasi Kategori & Produk Anda di sini
         ProductCategory::factory()
             ->count(5)
             ->has(Product::factory()->count(10), 'products')

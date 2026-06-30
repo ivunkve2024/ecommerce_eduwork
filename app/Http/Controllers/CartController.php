@@ -3,28 +3,39 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
+
+    public function add(Request $request, int $id)
+    {
+        return view('cart.index')      ;
+    }
+
     public function index()
     {
         // Mockup data item yang ceritanya sudah masuk ke keranjang
-        $cartItems = [
-            [
-                'nama' => 'Laptop ASUS ROG Strix',
-                'harga' => 18500000,
-                'quantity' => 1,
-                'gambar' => 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500&auto=format&fit=crop&q=60'
-            ],
-            [
-                'nama' => 'Sepatu Running Nike Airmax',
-                'harga' => 2200000,
-                'quantity' => 2,
-                'gambar' => 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60'
-            ]
-        ];
-
-        return view('cart', compact('cartItems'));
-    }
+        if(Auth::check()){
+            $cart_item = CartItem::wher('use_id', Auth::id())
+                            ->where('product_id', $id)
+                            ->first();
+            if($cart_item){
+                $cart_item->quantity += 1;
+                $cart_item>save();            
+            }else{
+                CartItem::create([
+                    'user_id' => Auth::id(),
+                    'product_id' => $product->id,
+                    'quantity' => 1,
+                ]);
+            }
+            return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang.');
+        }else{
+            return redirect()->route('login')->with('error', 'Anda harus login terlebih dahulu'); 
+        }
+        }
+ 
 }
+
 
